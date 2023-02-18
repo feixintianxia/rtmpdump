@@ -1,6 +1,12 @@
 VERSION=v2.3
 
-prefix=/usr/local
+FFMPEGHOME=/home/li/work/rtc/ffmpeg_build
+OPENSSLPATH=$(FFMPEGHOME)/openssl-1.0.2u
+OPENSSLINC=$(OPENSSLPATH)/include
+OPENSSLLIB=$(OPENSSLPATH)/lib
+INC=-I$(OPENSSLINC)
+
+prefix=$(FFMPEGHOME)/rtmpdump
 
 CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
@@ -19,7 +25,7 @@ LIBZ=-lz
 LIBS_posix=
 LIBS_mingw=-lws2_32 -lwinmm -lgdi32
 LIB_GNUTLS=-lgnutls -lgcrypt $(LIBZ)
-LIB_OPENSSL=-lssl -lcrypto $(LIBZ)
+LIB_OPENSSL=-L$(OPENSSLLIB) -lssl -lcrypto $(LIBZ)
 LIB_POLARSSL=-lpolarssl $(LIBZ)
 CRYPTO_LIB=$(LIB_$(CRYPTO)) $(LIBS_$(SYS))
 CRYPTO_REQ=$(REQ_$(CRYPTO))
@@ -39,7 +45,7 @@ SO_INST=$(SOINST_$(SHARED))
 
 DEF=-DRTMPDUMP_VERSION=\"$(VERSION)\" $(CRYPTO_DEF) $(XDEF)
 OPT=-O2
-CFLAGS=-Wall $(XCFLAGS) $(INC) $(DEF) $(OPT) $(SO_DEF)
+CFLAGS=-Wall $(XCFLAGS) $(INC) $(DEF) $(OPT) $(SO_DEF) $(CRYPTO_LIB)
 
 incdir=$(prefix)/include/librtmp
 bindir=$(prefix)/bin
@@ -61,7 +67,7 @@ librtmp.a: $(OBJS)
 	$(AR) rs $@ $?
 
 librtmp.$(SO_EXT): $(OBJS)
-	$(CC) -shared -Wl,-soname,$@ $(LDFLAGS) -o $@ $^ $> $(CRYPTO_LIB)
+	$(CC) -shared -Wl,-soname,$@ $(LDFLAGS) $(CFLAGS) -o $@ $^ $>
 	ln -sf $@ librtmp.so
 
 log.o: log.c log.h Makefile

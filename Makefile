@@ -1,6 +1,12 @@
 VERSION=v2.3
 
-prefix=/usr/local
+FFMPEGHOME=/home/li/work/rtc/ffmpeg_build
+OPENSSLPATH=$(FFMPEGHOME)/openssl-1.0.2u
+OPENSSLINC=$(OPENSSLPATH)/include/openssl
+OPENSSLLIB=$(OPENSSLPATH)/lib
+INC=-I$(OPENSSLINC)
+
+prefix=$(FFMPEGHOME)/rtmpdump
 
 CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
@@ -12,7 +18,7 @@ CRYPTO=OPENSSL
 #CRYPTO=POLARSSL
 #CRYPTO=GNUTLS
 LIB_GNUTLS=-lgnutls -lgcrypt
-LIB_OPENSSL=-lssl -lcrypto
+LIB_OPENSSL=-L$(OPENSSLLIB) -lssl -lcrypto
 LIB_POLARSSL=-lpolarssl
 CRYPTO_LIB=$(LIB_$(CRYPTO))
 DEF_=-DNO_CRYPTO
